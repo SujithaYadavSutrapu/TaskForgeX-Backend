@@ -36,9 +36,10 @@ const login = async (req: Request, res: Response) => {
     }
 
     try {
-      await loginService(email, password);
+      const response = await loginService(email, password);
       return res.status(200).json({
         message: "Login successful",
+        token: response.token
       });
 
     } catch (err: any) {

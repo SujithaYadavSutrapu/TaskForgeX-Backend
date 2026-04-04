@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { pool } from "../config/db";
+import jwt from "jsonwebtoken";
 
 const signupService = async (email: string, password: string) => {
   const existingUser = await pool.query(
@@ -46,9 +47,14 @@ const loginService = async (email: string, password: string) => {
     throw new Error("Invalid credentials");
   }
 
+  const token = jwt.sign(
+    { userId: user.id, email: user.email },
+    process.env.JWT_SECRET as string,
+    { expiresIn: "1h" }
+  );
+
   return {
-    id: user.id,
-    email: user.email,
+    token,
   };
 };
 
