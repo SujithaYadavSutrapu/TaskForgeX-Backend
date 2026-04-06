@@ -1,52 +1,49 @@
 import { Request, Response } from "express";
 import { validateAuthInput } from "../utils/authValidator";
 import { loginService, signupService } from "../services/authService";
+import { AppError } from "../utils/appError";
 
+// SIGNUP
 const signup = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+
   if (!email || !password) {
-      return res.status(400).json({ message: "Missing fields" });
-    }
-    const error = validateAuthInput(email, password);
-    if (error) {
-      return res.status(400).json({ message: error });
-    }
+    throw new AppError("Both Email and password are required", 400);
+  }
+  
+  const { email: cleanEmail, password: cleanPassword } =
+  validateAuthInput(email, password);
 
-    try {
-      await signupService(email, password);
-      return res.status(201).json({
-        message: "User created successfully"
-      });
+  await signupService(cleanEmail, cleanPassword);
 
-    } catch (err: any) {
-    return res.status(err.statusCode || 500).json({
-    message: err.message || "Internal server error"
-     });
- }
+  res.status(201).json({
+    success: true,
+    message: "User created successfully",
+  });
 };
 
-const login = async (req: Request, res: Response) => {
+// LOGIN
+const login = async (req: Request, res: Response) : Promise<void> => {
   const { email, password } = req.body;
+
   if (!email || !password) {
-      return res.status(400).json({ message: "Missing fields" });
-    }
-    const error = validateAuthInput(email, password);
-    if (error) {
-      return res.status(400).json({ message: error });
-    }
+    throw new AppError("Missing fields", 400);
+  }
 
-    try {
-      const response = await loginService(email, password);
-      return res.status(200).json({
-        message: "Login successful",
-        token: response.token
-      });
+  const { email: cleanEmail, password: cleanPassword } =
+  validateAuthInput(email, password);
 
-    } catch (err: any) {
-      return res.status(err.statusCode || 500).json({
-    message: err.message || "Internal server error"
-      });
-    }
+  const response = await loginService(cleanEmail, cleanPassword);
+
+  res.status(200).json({
+    success: true,
+    message: "Login successful",
+     user: {
+      id: response.userId,
+      email: response.email,
+    },
+    token: response.token,
+  });
 };
 
 export { signup, login };

@@ -3,8 +3,10 @@ import authRoutes from './routes/authRoutes';
 import dotenv from 'dotenv';
 dotenv.config();
 import { pool } from "./config/db";
+import { errorHandler } from './middleware/errorMiddleware';
 
 const app = express();
+
 
 app.use(express.json());
 
@@ -12,6 +14,8 @@ app.get("/", (req, res) => {
   res.send("TaskForge API running 🚀");
 });
 app.use("/auth", authRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 7000;
 

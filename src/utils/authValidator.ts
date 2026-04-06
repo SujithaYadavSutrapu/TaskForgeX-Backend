@@ -1,22 +1,29 @@
+import { AppError } from "./appError";
+
 export const validateAuthInput = (email: string, password: string) => {
-  
-  if (!email.trim()) {
-    return "Email cannot be empty";
+  const trimmedEmail = email.trim();
+  const trimmedPassword = password.trim();
+
+  if (!trimmedEmail) {
+    throw new AppError("Email cannot be empty", 400);
   }
 
-  if (!password.trim()) {
-    return "Password cannot be empty";
+  if (!trimmedPassword) {
+    throw new AppError("Password cannot be empty", 400);
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!emailRegex.test(email)) {
-    return "Invalid email format";
+  if (!emailRegex.test(trimmedEmail)) {
+    throw new AppError("Invalid email format", 400);
   }
 
-  if (password.length < 6) {
-    return "Password must be at least 6 characters";
+  if (trimmedPassword.length < 6) {
+    throw new AppError("Password must be at least 6 characters", 400);
   }
 
-  return null;
+  return {
+    email: trimmedEmail,
+    password: trimmedPassword,
+  };
 };
