@@ -3,7 +3,6 @@ import { validateAuthInput } from "../utils/authValidator";
 import { loginService, signupService } from "../services/authService";
 import { AppError } from "../utils/appError";
 
-// SIGNUP
 const signup = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -11,8 +10,7 @@ const signup = async (req: Request, res: Response) => {
     throw new AppError("Both Email and password are required", 400);
   }
   
-  const { email: cleanEmail, password: cleanPassword } =
-  validateAuthInput(email, password);
+  const { email: cleanEmail, password: cleanPassword } = validateAuthInput(email, password);
 
   await signupService(cleanEmail, cleanPassword);
 
@@ -22,7 +20,6 @@ const signup = async (req: Request, res: Response) => {
   });
 };
 
-// LOGIN
 const login = async (req: Request, res: Response) : Promise<void> => {
   const { email, password } = req.body;
 

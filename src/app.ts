@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { pool } from "./config/db";
 import { errorHandler } from './middleware/errorMiddleware';
+import projectRoutes from './routes/projectRoutes';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
   res.send("TaskForge API running 🚀");
 });
 app.use("/auth", authRoutes);
+app.use("/api/projects", projectRoutes);
 
 app.use(errorHandler);
 

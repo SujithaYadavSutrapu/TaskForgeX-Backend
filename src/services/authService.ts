@@ -4,20 +4,18 @@ import jwt from "jsonwebtoken";
 import { AppError } from "../utils/appError";
 
 const signupService = async (email: string, password: string) => {
-  // Check if user exists
+  
   const existingUser = await pool.query(
     "SELECT * FROM users WHERE email = $1",
     [email]
   );
 
   if (existingUser.rows.length > 0) {
-    throw new AppError("User already exists", 409); // 🔥 409 Conflict
+    throw new AppError("User already exists", 409); 
   }
 
-  // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Insert user
   const result = await pool.query(
     "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
     [email, hashedPassword]

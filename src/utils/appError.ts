@@ -14,11 +14,11 @@ export class AppError extends Error {
     }
     
   }
-    static badRequest(message: string) {
-    return new AppError(message, 400);
-    }
+  static badRequest(message: string) {
+   return new AppError(message, 400);
+  }
 
-    static unauthorized(message: string) {
+  static unauthorized(message: string) {
     return new AppError(message, 401);
-    }
+  }
 }
