@@ -25,7 +25,6 @@ export const authMiddleware = (
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     (req as any).user = decoded;
 
     next();
@@ -34,6 +33,8 @@ export const authMiddleware = (
           throw new AppError("Token expired", 401);
     }else if (err instanceof jwt.JsonWebTokenError) {
       throw new AppError("Invalid token", 401);
+    } else {
+      throw new AppError("Authentication failed", 401);
     }
   }
 };

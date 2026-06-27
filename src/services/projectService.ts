@@ -1,4 +1,4 @@
-import { pool } from "../config/db";
+import prisma from "../lib/prisma";
 import { AppError } from "../utils/appError";
 
 export const createProjectService = async (
@@ -10,34 +10,39 @@ export const createProjectService = async (
     throw new AppError("Project name is required", 400);
   }
 
-  const client = await pool.connect();
-
   try {
-    await client.query("BEGIN");
-    const projectResult = await client.query(
-      `INSERT INTO projects (name, description, owner_id)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [name.trim(), description || null, userId]
-    );
+    const project = await prisma.$transaction(async (tx) => {
+      // Create project
+      const createdProject = await tx.projects.create({
+        data: {
+          name: name.trim(),
+          description: description || null,
+          owner_id: userId,
+        },
+      });
 
-    const project = projectResult.rows[0];
+      // Add owner as admin member
+      await tx.project_members.create({
+        data: {
+          user_id: userId,
+          project_id: createdProject.id,
+          role: "admin",
+        },
+      });
 
-    await client.query(
-      `INSERT INTO project_members (user_id, project_id, role)
-       VALUES ($1, $2, 'admin')`,
-      [userId, project.id]
-    );
-    await client.query("COMMIT");
+      return createdProject;
+    } );
+
     return project;
   } catch (err: any) {
-    await client.query("ROLLBACK");
-    if (err.code === "23505") {
-      throw new AppError("Project with this name already exists", 409);
+    // PostgreSQL unique violation via Prisma
+    if (err.code === "P2002"&& err.meta?.target?.includes("name")) {
+      throw new AppError(
+        "Project with this name already exists",
+        409 
+      );
     }
 
     throw err;
-  } finally {
-    client.release();
   }
 };

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { validateAuthInput } from "../utils/authValidator";
 import { loginService, signupService } from "../services/authService";
 import { AppError } from "../utils/appError";
-
+//login and sign up controller
 const signup = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
